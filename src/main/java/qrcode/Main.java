@@ -29,7 +29,7 @@ class Main {
             if (con != null) {
                 nome = JOptionPane.showInputDialog("Inserir o responsável");
                 do {
-                    ch = Integer.parseInt(JOptionPane.showInputDialog("1.Adicionar Pedido\n 2.Modificar\n 3.Apagar \n 4.Buscar \n 5.Mostrar tudo \n 6.Sair\n"));
+                    ch = Integer.parseInt(JOptionPane.showInputDialog("1.Adicionar Pedido\n 2.Modificar\n 3.Apagar \n 4.Buscar QRCode \n 5.Mostrar tudo \n 6.Sair\n"));
                     switch (ch) {
                         case 5:
                             rs = stmt.executeQuery("select * from pedidos");
@@ -77,24 +77,32 @@ class Main {
                             count = 0;
                             while (rs.next()) {
                                 while(count < qtd){
-                                    String input = JOptionPane.showInputDialog("Insira um qrcode:");
-                                    if(input == null) break;
-                                    System.out.println(pedidoId);
-                                    System.out.println(rs.getInt(2));
-                                    psCodigo.setString(1, input);
-                                    psCodigo.setInt(2, pedidoId);
-                                    psCodigo.setInt(3, rs.getInt(2));
-                                    psCodigo.executeUpdate();
-                                    count++;
+                                    try {
+                                        String input = JOptionPane.showInputDialog("Insira um qrcode:");
+                                        if (input == null) break;
+                                        System.out.println(pedidoId);
+                                        System.out.println(rs.getInt(2));
+                                        psCodigo.setString(1, input);
+                                        psCodigo.setInt(2, pedidoId);
+                                        psCodigo.setInt(3, rs.getInt(2));
+                                        psCodigo.executeUpdate();
+                                        count++;
+                                    }catch(SQLIntegrityConstraintViolationException e){
+                                        final JPanel panel = new JPanel();
+                                        JOptionPane.showMessageDialog(panel, "QRCode já existe! Insira outro: ", "Warning",
+                                                JOptionPane.WARNING_MESSAGE);
+
+                                    }
                                 }
+
                             }
                             break;
                         case 3:
                             numeroPedido = JOptionPane.showInputDialog("Entre com o número do pedido que deseja apagar");
                             if (numeroPedido == null) throw new Exception("Entre com um número válido");
-                            rs = stmt.executeQuery("select * from student where numeroPedido=" + "'" + numeroPedido + "'");
+                            rs = stmt.executeQuery("select * from pedidos where numero_pedido=" + "'" + numeroPedido + "'");
                             if (rs.next()) {
-                                stmt.executeUpdate("delete from student where numeroPedido=" + "'" + numeroPedido + "'");
+                                stmt.executeUpdate("delete from pedidos where numero_pedido=" + "'" + numeroPedido + "'");
                                 System.out.println("Pedido apagado");
                             } else {
                                 throw new Exception("Pedido não consta no Banco de Dados");
@@ -115,13 +123,20 @@ class Main {
                             } else throw new Exception("Pedido não consta no Banco de Dados");
                             break;
                         case 4:
-                            numeroPedido = JOptionPane.showInputDialog("Entre com o número do pedido que deseja buscar");
-                            if (numeroPedido == null) throw new Exception("Entre com um número válido");
-                            rs = stmt.executeQuery("select * from student where numeroPedido=" + "'" + numeroPedido + "'");
-                            if (rs.next()) {
-                                System.out.println("Pedido encontrado");
-                                System.out.println("Número do pedido=" + rs.getString(1) + "\tResponsável=" + rs.getString(2) + "\tQuantidade=" + rs.getInt(3));
-                            } else System.out.println("Pedido não encontrado!");
+                            String codigo = JOptionPane.showInputDialog("Entre com o QRCode que deseja buscar");
+                            if (codigo == null) throw new Exception("Entre com um número válido");
+                            rs = stmt.executeQuery("select * from codigos where codigo=" + "'" + codigo + "'");
+                            if (rs.next()){
+                                int pedido_id = rs.getInt(3);
+                                System.out.println(pedido_id);
+                                rs = stmt.executeQuery("select * from pedidos where ID = " + pedido_id);
+                                if (rs.next()) {
+                                    System.out.println("Pedido encontrado");
+                                    System.out.println(rs.getInt(1) + "\t\t" + rs.getString(2) + "\t\t\t\t" + rs.getString(3) + "\t\t\t" + rs.getInt(4) + "\n");
+                                } else System.out.println("Pedido não encontrado!");
+                            } else{
+                                System.out.println("Ocorreu um erro");
+                            }
                         case 6:
                             System.exit(0);
                         default:
@@ -130,12 +145,13 @@ class Main {
                 } while (ch != 6);
                 rs.close();
                 stmt.close();
+
                 con.close();
             }
         } catch (NumberFormatException ae) {
             System.out.println("Formato inválido");
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 }    // main }// class
