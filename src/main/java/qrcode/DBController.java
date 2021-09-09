@@ -124,21 +124,39 @@ public class DBController {
     }
 
     void delOrder(){
+        int ID;
         try {
             numeroPedido = JOptionPane.showInputDialog("Entre com o número do pedido que deseja apagar");
             if (numeroPedido == null) throw new Exception("Entre com um número válido");
-            rs = stmt.executeQuery("select * from pedidos where numero_pedido=" + "'" + numeroPedido + "'");
-            if (rs.next()) {
-                stmt.executeUpdate("delete from pedidos where numero_pedido=" + "'" + numeroPedido + "'");
-                System.out.println("Pedido apagado");
-            } else {
+            rs = stmt.executeQuery("select * from pedidos where numero_pedido="+"'"+numeroPedido+"'");
+            if(rs.next()){
+                ID = rs.getInt(1);
+            }
+            else{
                 throw new Exception("Pedido não consta no Banco de Dados");
             }
+            stmt.executeUpdate("delete from codigos where pedidos_id="+"'"+ID+"'");
+            System.out.println("Códigos apagados!!");
+            stmt.executeUpdate("delete from bridge_table where pedidos_id="+"'"+ID+"'");
+            System.out.println("Relações apagadas!!");
+            stmt.executeUpdate("delete from pedidos where numero_pedido="+"'"+numeroPedido+"'");
+            System.out.println("Pedido apagado com sucesso!!!");
         } catch (Exception e) {
             e.getMessage();
         }
     }
 
+    void delQRCode() {
+        int dialogResult;
+        do{
+
+
+
+            dialogResult = JOptionPane.showConfirmDialog(null, "Deseja excluir outro código?",
+                    "Aviso", JOptionPane.YES_NO_OPTION);
+
+        }while(dialogResult != JOptionPane.NO_OPTION);
+    }
     void modifyOrder(){
         try {
             numeroPedido = JOptionPane.showInputDialog("Entre com o número do pedido que deseja modificar");
@@ -157,6 +175,7 @@ public class DBController {
             e.getMessage();
         }
     }
+
     void findQRCode(){
         try {
             String codigo = JOptionPane.showInputDialog("Entre com o QRCode que deseja buscar");

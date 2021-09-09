@@ -22,13 +22,23 @@ class Main {
                         controlador.addOrder();
                         break;
                     case 3:
-                        controlador.delOrder();
+                        int escolha = Integer.parseInt(JOptionPane.showInputDialog("1. Deletar pedido e seus códigos;\n2.Deletar um código específico"));
+                        switch (escolha){
+                            case 1:
+                                controlador.delOrder();
+                                break;
+                            case 2:
+                                controlador.delQRCode();
+                                break;
+
+                        }
                         break;
                     case 2:
                         controlador.modifyOrder();
                         break;
                     case 4:
                         controlador.findQRCode();
+                        break;
                     case 6:
                         System.exit(0);
                     default:
