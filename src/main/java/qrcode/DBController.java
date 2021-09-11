@@ -5,6 +5,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.sql.*;
 
+import static view.Painel.buildTableModel;
+
 public class DBController {
     private Connection con = null;
     private Statement stmt = null;
@@ -51,10 +53,8 @@ public class DBController {
     void showAll(){
         try {
             rs = stmt.executeQuery("select * from pedidos");
-            System.out.println("ID \t\t Número do pedido \t Responsável \t Quantidade\n");
-            while (rs.next()) {
-                System.out.println(rs.getInt(1) + "\t\t" + rs.getString(2) + "\t\t\t\t" + rs.getString(3) + "\t\t\t" + rs.getInt(4) + "\n");
-            }
+            JTable table = new JTable(buildTableModel(rs));
+            JOptionPane.showMessageDialog(null, new JScrollPane(table));
         } catch (SQLException e) {
             System.out.println("Formato inválido!");
         }

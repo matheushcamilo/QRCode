@@ -125,7 +125,7 @@ class Teste {
                         case 4:
                             String codigo = JOptionPane.showInputDialog("Entre com o QRCode que deseja buscar");
                             if (codigo == null) throw new Exception("Entre com um número válido");
-                            rs = stmt.executeQuery("select * from codigos where codigo=" + "'" + codigo + "'");
+                            rs = stmt.executeQuery("select * from codigos where qrcode=" + "'" + codigo + "'");
                             if (rs.next()){
                                 int pedido_id = rs.getInt(3);
                                 System.out.println(pedido_id);
